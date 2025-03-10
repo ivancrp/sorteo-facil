@@ -1,15 +1,21 @@
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Download } from 'lucide-react';
+import { toast } from 'sonner';
+import { exportToFile, getFormattedDate } from '@/lib/export-utils';
 
 interface ResultModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  exportData?: {
+    content: string;
+    filename: string;
+  };
 }
 
-const ResultModal = ({ isOpen, onClose, title, children }: ResultModalProps) => {
+const ResultModal = ({ isOpen, onClose, title, children, exportData }: ResultModalProps) => {
   const [animationClass, setAnimationClass] = useState('');
   
   useEffect(() => {
@@ -30,6 +36,15 @@ const ResultModal = ({ isOpen, onClose, title, children }: ResultModalProps) => 
     };
   }, [isOpen]);
   
+  const handleExport = () => {
+    if (exportData) {
+      exportToFile(exportData.content, `${exportData.filename}_${getFormattedDate()}.txt`);
+      toast.success("Resultado exportado com sucesso", {
+        description: "O arquivo foi salvo no seu dispositivo"
+      });
+    }
+  };
+  
   if (!isOpen) return null;
   
   return (
@@ -40,12 +55,23 @@ const ResultModal = ({ isOpen, onClose, title, children }: ResultModalProps) => 
       >
         <div className="flex items-center justify-between p-5 border-b">
           <h2 className="text-xl font-semibold">{title}</h2>
-          <button 
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-secondary transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center space-x-2">
+            {exportData && (
+              <button 
+                onClick={handleExport}
+                className="p-1 rounded-full hover:bg-secondary transition-colors text-primary"
+                title="Exportar resultado"
+              >
+                <Download className="w-5 h-5" />
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className="p-1 rounded-full hover:bg-secondary transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         
         <div className="p-5">

@@ -2,13 +2,15 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Roulette from '@/components/Roulette';
+import { exportToFile, getFormattedDate } from '@/lib/export-utils';
 
 const RoulettePage = () => {
   const [items, setItems] = useState<string[]>([]);
+  const [winner, setWinner] = useState<string | null>(null);
   
   useEffect(() => {
     // Welcome toast
@@ -44,6 +46,29 @@ const RoulettePage = () => {
     setItems(fileItems);
   };
 
+  const handleWinner = (item: string) => {
+    setWinner(item);
+  };
+
+  const exportResult = () => {
+    if (!winner) {
+      toast.error("Realize um sorteio primeiro");
+      return;
+    }
+
+    const content = 
+      `RESULTADO DO SORTEIO DA ROLETA\n` +
+      `Data: ${new Date().toLocaleDateString()}\n` +
+      `Total de itens na roleta: ${items.length}\n\n` +
+      `Item sorteado: ${winner}`;
+
+    exportToFile(content, `sorteio_roleta_${getFormattedDate()}.txt`);
+    
+    toast.success("Resultado exportado com sucesso", {
+      description: "O arquivo foi salvo no seu dispositivo"
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -76,7 +101,20 @@ const RoulettePage = () => {
               onRemoveItem={handleRemoveItem}
               onClearItems={handleClearItems}
               onFileLoad={handleFileLoad}
+              onWinner={handleWinner}
             />
+
+            {winner && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={exportResult}
+                  className="flex items-center justify-center px-4 py-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar Resultado
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       </main>

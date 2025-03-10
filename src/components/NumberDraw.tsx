@@ -80,6 +80,28 @@ const NumberDraw = () => {
     }, drawingTime);
   };
   
+  const getExportContent = () => {
+    if (result.length === 0) return "";
+    
+    const header = `RESULTADO DO SORTEIO DE NÚMEROS\n` +
+                  `Data: ${new Date().toLocaleDateString()}\n` +
+                  `Intervalo: ${minNumber} a ${maxNumber}\n` +
+                  `Quantidade: ${result.length}\n\n`;
+                  
+    const numbers = result.length === 1 
+      ? `Número sorteado: ${result[0]}`
+      : `Números sorteados:\n${result.join(', ')}`;
+    
+    return header + numbers;
+  };
+  
+  const getExportData = () => {
+    return {
+      content: getExportContent(),
+      filename: 'sorteio_numeros'
+    };
+  };
+  
   return (
     <div className="w-full max-w-3xl mx-auto p-6">
       <div className="bg-white dark:bg-card shadow-lg rounded-xl p-6">
@@ -162,6 +184,7 @@ const NumberDraw = () => {
         isOpen={showResult}
         onClose={() => setShowResult(false)}
         title="Resultado do Sorteio"
+        exportData={result.length > 0 ? getExportData() : undefined}
       >
         <div className="text-center">
           {result.length === 1 ? (

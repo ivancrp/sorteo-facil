@@ -1,4 +1,3 @@
-
 import { useState, useRef, ChangeEvent } from 'react';
 import { toast } from "sonner";
 import { List, Upload, RefreshCw, Shuffle } from 'lucide-react';
@@ -100,6 +99,28 @@ const NameDraw = () => {
       
       toast.success("Sorteio concluído com sucesso!");
     }, 1500);
+  };
+  
+  const getExportContent = () => {
+    if (result.length === 0) return "";
+    
+    const header = `RESULTADO DO SORTEIO DE NOMES\n` +
+                  `Data: ${new Date().toLocaleDateString()}\n` +
+                  `Total de nomes na lista: ${names.length}\n` +
+                  `Quantidade sorteada: ${result.length}\n\n`;
+                  
+    const namesList = result.length === 1 
+      ? `Nome sorteado: ${result[0]}`
+      : `Nomes sorteados:\n${result.join('\n')}`;
+    
+    return header + namesList;
+  };
+  
+  const getExportData = () => {
+    return {
+      content: getExportContent(),
+      filename: 'sorteio_nomes'
+    };
   };
   
   const clearNames = () => {
@@ -232,6 +253,7 @@ const NameDraw = () => {
         isOpen={showResult}
         onClose={() => setShowResult(false)}
         title="Resultado do Sorteio"
+        exportData={result.length > 0 ? getExportData() : undefined}
       >
         <div className="text-center">
           {result.length === 1 ? (

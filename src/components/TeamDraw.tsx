@@ -1,4 +1,3 @@
-
 import { useState, useRef, ChangeEvent } from 'react';
 import { toast } from "sonner";
 import { Users, RefreshCw, Upload, Shuffle } from 'lucide-react';
@@ -109,6 +108,32 @@ const TeamDraw = () => {
       
       toast.success("Equipes formadas com sucesso!");
     }, 1500);
+  };
+  
+  const getExportContent = () => {
+    if (teams.length === 0) return "";
+    
+    const header = `RESULTADO DO SORTEIO DE EQUIPES\n` +
+                  `Data: ${new Date().toLocaleDateString()}\n` +
+                  `Total de participantes: ${participants.length}\n` +
+                  `Número de equipes: ${teams.length}\n\n`;
+                  
+    let teamsText = "EQUIPES FORMADAS:\n";
+    teams.forEach((team, index) => {
+      teamsText += `\n${team.name} (${team.members.length} ${team.members.length === 1 ? 'membro' : 'membros'}):\n`;
+      team.members.forEach((member, memberIndex) => {
+        teamsText += `  ${memberIndex + 1}. ${member}\n`;
+      });
+    });
+    
+    return header + teamsText;
+  };
+  
+  const getExportData = () => {
+    return {
+      content: getExportContent(),
+      filename: 'sorteio_equipes'
+    };
   };
   
   const clearParticipants = () => {
@@ -240,6 +265,7 @@ const TeamDraw = () => {
         isOpen={showResult}
         onClose={() => setShowResult(false)}
         title="Equipes Formadas"
+        exportData={teams.length > 0 ? getExportData() : undefined}
       >
         <div>
           <p className="text-sm text-muted-foreground mb-4 text-center">
