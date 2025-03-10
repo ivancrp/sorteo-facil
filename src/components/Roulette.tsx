@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { toast } from "sonner";
 import { Circle, Play, Settings, Upload, RefreshCw, X } from 'lucide-react';
@@ -9,7 +10,7 @@ interface RouletteProps {
   onRemoveItem: (index: number) => void;
   onClearItems: () => void;
   onFileLoad: (items: string[]) => void;
-  onWinner: (item: string) => void;  // Add this prop
+  onWinner: (item: string) => void;
 }
 
 const Roulette = ({
@@ -75,12 +76,12 @@ const Roulette = ({
       'bg-[#D946EF]', // Magenta Pink
       'bg-[#F97316]', // Bright Orange
       'bg-[#0EA5E9]', // Ocean Blue
-      'bg-emerald-500',
-      'bg-rose-500',
-      'bg-yellow-500',
-      'bg-indigo-500',
-      'bg-pink-500',
-      'bg-cyan-500',
+      'bg-[#10B981]', // Emerald
+      'bg-[#F43F5E]', // Rose
+      'bg-[#EAB308]', // Yellow
+      'bg-[#6366F1]', // Indigo
+      'bg-[#EC4899]', // Pink
+      'bg-[#06B6D4]', // Cyan
     ];
     
     return colors[index % colors.length];
@@ -260,7 +261,7 @@ const Roulette = ({
           </div>
           
           <div className="flex flex-col items-center justify-center">
-            <div className="relative w-64 h-64 mb-4"> {/* Increased size from w-48 h-48 */}
+            <div className="relative w-72 h-72 mb-4"> {/* Increased size for larger wheel */}
               {/* Wheel indicator (pointer) */}
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-4 z-10">
                 <div className="w-8 h-8 bg-white dark:bg-background rounded-full border-2 border-primary shadow-md"></div>
@@ -279,6 +280,10 @@ const Roulette = ({
                   items.map((item, index) => {
                     const segmentAngle = 360 / items.length;
                     const rotation = index * segmentAngle;
+                    const colorClass = getItemColor(index);
+                    const colorValue = colorClass.includes('[') 
+                      ? colorClass.replace('bg-[', '').replace(']', '') 
+                      : `var(--${colorClass.replace('bg-', '')})`;
                     
                     return (
                       <div
@@ -290,16 +295,19 @@ const Roulette = ({
                         }}
                       >
                         <div 
-                          className={`w-full h-full flex items-start justify-center pt-4 font-medium text-white text-sm`}
+                          className="w-full h-full flex items-start justify-center pt-5 font-medium text-white text-sm"
                           style={{
-                            background: `var(--${getItemColor(index).replace('bg-', '')})`,
+                            background: colorValue,
                             transform: `rotate(${segmentAngle / 2}deg)`,
                             transformOrigin: 'center',
                           }}
                         >
                           <span 
-                            className="max-w-[80%] truncate transform -rotate-180"
-                            style={{ transformOrigin: 'center' }}
+                            className="max-w-[80%] overflow-hidden whitespace-nowrap text-center"
+                            style={{ 
+                              transform: 'rotate(180deg)',
+                              textShadow: '0px 1px 2px rgba(0,0,0,0.5)'
+                            }}
                           >
                             {item}
                           </span>
