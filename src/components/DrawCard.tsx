@@ -13,10 +13,17 @@ interface DrawCardProps {
 
 const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: DrawCardProps) => {
   const colorVariants = {
-    primary: "from-blue-500 to-blue-600",
-    secondary: "from-cyan-500 to-cyan-600",
-    accent: "from-purple-500 to-violet-600",
-    warning: "from-amber-500 to-amber-600",
+    primary: "from-blue-500 to-blue-700",
+    secondary: "from-cyan-400 to-cyan-600",
+    accent: "from-violet-500 to-purple-600",
+    warning: "from-amber-400 to-orange-500",
+  };
+
+  const bgGradients = {
+    primary: "from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10",
+    secondary: "from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-900/10",
+    accent: "from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-900/10",
+    warning: "from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-orange-900/10",
   };
 
   return (
@@ -24,25 +31,35 @@ const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: D
       to={href}
       className="block card-hover"
     >
-      <div className="relative rounded-xl overflow-hidden bg-white dark:bg-card shadow-md h-full">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-r opacity-90" 
-          style={{ backgroundImage: `linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)))` }} />
+      <div className={cn(
+        "relative rounded-xl overflow-hidden h-full bg-gradient-to-br border",
+        bgGradients[color as keyof typeof bgGradients] || bgGradients.primary,
+        "border-gray-200 dark:border-gray-800"
+      )}>
+        <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b" 
+          style={{ backgroundImage: `linear-gradient(to bottom, hsl(var(--${color})), transparent)` }} />
           
-        <div className="p-6 pt-8 relative z-10 h-full flex flex-col">
+        <div className="p-7 relative z-10 h-full flex flex-col">
           <div 
             className={cn(
-              "flex items-center justify-center w-12 h-12 rounded-lg -mt-10 mb-4 shadow-lg bg-gradient-to-br",
+              "flex items-center justify-center w-14 h-14 rounded-lg mb-5 shadow-lg bg-gradient-to-br",
               colorVariants[color as keyof typeof colorVariants] || colorVariants.primary
             )}
           >
-            <Icon className="w-6 h-6 text-white" />
+            <Icon className="w-7 h-7 text-white" />
           </div>
           
-          <h3 className="text-xl font-semibold mb-2">{title}</h3>
-          <p className="text-muted-foreground text-sm flex-grow">{description}</p>
+          <h3 className="text-xl font-semibold mb-3">{title}</h3>
+          <p className="text-muted-foreground text-sm flex-grow mb-4">{description}</p>
           
-          <div className="flex justify-end mt-4">
-            <span className="text-primary text-sm font-medium inline-flex items-center">
+          <div className="flex justify-end mt-auto">
+            <span className={cn(
+              "text-sm font-medium inline-flex items-center",
+              color === 'primary' && "text-blue-600 dark:text-blue-400",
+              color === 'secondary' && "text-cyan-600 dark:text-cyan-400",
+              color === 'accent' && "text-violet-600 dark:text-violet-400",
+              color === 'warning' && "text-amber-600 dark:text-amber-400"
+            )}>
               Iniciar sorteio
               <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
