@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { toast } from "sonner";
 import { Circle, Play, Settings, Upload, RefreshCw, X } from 'lucide-react';
@@ -10,6 +9,7 @@ interface RouletteProps {
   onRemoveItem: (index: number) => void;
   onClearItems: () => void;
   onFileLoad: (items: string[]) => void;
+  onWinner: (item: string) => void;  // Add this prop
 }
 
 const Roulette = ({
@@ -17,7 +17,8 @@ const Roulette = ({
   onAddItem,
   onRemoveItem,
   onClearItems,
-  onFileLoad
+  onFileLoad,
+  onWinner
 }: RouletteProps) => {
   const [newItem, setNewItem] = useState('');
   const [rotation, setRotation] = useState(0);
@@ -68,6 +69,24 @@ const Roulette = ({
     }
   };
   
+  const getItemColor = (index: number) => {
+    const colors = [
+      'bg-[#8B5CF6]', // Vivid Purple
+      'bg-[#D946EF]', // Magenta Pink
+      'bg-[#F97316]', // Bright Orange
+      'bg-[#0EA5E9]', // Ocean Blue
+      'bg-emerald-500',
+      'bg-rose-500',
+      'bg-yellow-500',
+      'bg-indigo-500',
+      'bg-pink-500',
+      'bg-cyan-500',
+    ];
+    
+    return colors[index % colors.length];
+  };
+
+  // Update spinWheel to call onWinner
   const spinWheel = () => {
     if (items.length < 2) {
       toast.error("Adicione pelo menos 2 itens para girar a roleta");
@@ -77,19 +96,18 @@ const Roulette = ({
     setIsSpinning(true);
     setWinner(null);
     
-    // Calculate a random rotation (at least 5 full rotations plus a random offset)
-    const minRotation = 5 * 360; // Minimum 5 rotations
+    const minRotation = 5 * 360;
     const randomOffset = Math.floor(Math.random() * 360);
     const newRotation = rotation + minRotation + randomOffset;
     
     setRotation(newRotation);
     
-    // Calculate which item will be the winner
     setTimeout(() => {
       const winnerIndex = determineWinner(newRotation);
       const winnerName = items[winnerIndex];
       
       setWinner(winnerName);
+      onWinner(winnerName); // Call the onWinner callback
       setIsSpinning(false);
       setShowResult(true);
       
@@ -114,23 +132,6 @@ const Roulette = ({
     winnerIndex = (items.length - winnerIndex) % items.length;
     
     return winnerIndex;
-  };
-  
-  const getItemColor = (index: number) => {
-    const colors = [
-      'bg-blue-500',
-      'bg-cyan-500',
-      'bg-teal-500',
-      'bg-green-500',
-      'bg-amber-500',
-      'bg-orange-500',
-      'bg-red-500',
-      'bg-pink-500',
-      'bg-purple-500',
-      'bg-indigo-500',
-    ];
-    
-    return colors[index % colors.length];
   };
   
   const resetWheel = () => {
@@ -259,10 +260,10 @@ const Roulette = ({
           </div>
           
           <div className="flex flex-col items-center justify-center">
-            <div className="relative w-48 h-48 mb-4">
+            <div className="relative w-64 h-64 mb-4"> {/* Increased size from w-48 h-48 */}
               {/* Wheel indicator (pointer) */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-3 z-10">
-                <div className="w-6 h-6 bg-white dark:bg-background rounded-full border-2 border-primary shadow-md"></div>
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-4 z-10">
+                <div className="w-8 h-8 bg-white dark:bg-background rounded-full border-2 border-primary shadow-md"></div>
               </div>
               
               {/* The wheel */}
@@ -289,7 +290,7 @@ const Roulette = ({
                         }}
                       >
                         <div 
-                          className={`w-full h-full flex items-start justify-center pt-3 font-medium text-white text-xs`}
+                          className={`w-full h-full flex items-start justify-center pt-4 font-medium text-white text-sm`}
                           style={{
                             background: `var(--${getItemColor(index).replace('bg-', '')})`,
                             transform: `rotate(${segmentAngle / 2}deg)`,
@@ -297,8 +298,8 @@ const Roulette = ({
                           }}
                         >
                           <span 
-                            className="max-w-[80%] truncate transform origin-bottom"
-                            style={{ transform: 'rotate(180deg)' }}
+                            className="max-w-[80%] truncate transform -rotate-180"
+                            style={{ transformOrigin: 'center' }}
                           >
                             {item}
                           </span>
