@@ -70,11 +70,11 @@ const RoulettePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/10">
       <Header />
       
       <main className="flex-grow pt-24 pb-12">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -94,27 +94,31 @@ const RoulettePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="relative"
           >
-            <Roulette 
-              items={items}
-              onAddItem={handleAddItem}
-              onRemoveItem={handleRemoveItem}
-              onClearItems={handleClearItems}
-              onFileLoad={handleFileLoad}
-              onWinner={handleWinner}
-            />
+            <div className="absolute inset-0 -z-10 bg-white dark:bg-card opacity-80 blur-xl rounded-3xl"></div>
+            <div className="p-2 md:p-8 relative z-10">
+              <Roulette 
+                items={items}
+                onAddItem={handleAddItem}
+                onRemoveItem={handleRemoveItem}
+                onClearItems={handleClearItems}
+                onFileLoad={handleFileLoad}
+                onWinner={handleWinner}
+              />
 
-            {winner && (
-              <div className="mt-6 flex justify-center">
-                <button
-                  onClick={exportResult}
-                  className="flex items-center justify-center px-4 py-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Exportar Resultado
-                </button>
-              </div>
-            )}
+              {winner && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={exportResult}
+                    className="flex items-center justify-center px-6 py-3 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors shadow-md"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Exportar Resultado
+                  </button>
+                </div>
+              )}
+            </div>
           </motion.div>
         </div>
       </main>
