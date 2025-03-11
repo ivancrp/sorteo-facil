@@ -71,19 +71,11 @@ const Roulette = ({
     }
   };
   
-  const getItemColor = (index: number, isWinningIndex: boolean = false) => {
-    // Alternating colors
-    const baseColors = [
-      { bg: 'bg-red-500', text: 'text-white' },
-      { bg: 'bg-amber-400', text: 'text-gray-900' },
-      { bg: 'bg-emerald-500', text: 'text-white' },
-      { bg: 'bg-blue-500', text: 'text-white' },
-      { bg: 'bg-purple-500', text: 'text-white' },
-      { bg: 'bg-pink-500', text: 'text-white' },
-    ];
-    
-    const colorIndex = index % baseColors.length;
-    return baseColors[colorIndex];
+  const getItemColor = (index: number) => {
+    // Just alternating orange and white colors as shown in the image
+    return index % 2 === 0 ? 
+      { bg: 'bg-[#F97316]', text: 'text-white' } : 
+      { bg: 'bg-white', text: 'text-gray-900' };
   };
 
   const spinWheel = () => {
@@ -147,9 +139,6 @@ const Roulette = ({
     setHighlightWinner(false);
   };
 
-  // Mute colors when spinning
-  const colorMultiplier = isSpinning ? 'opacity-80' : 'opacity-100';
-  
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-white dark:bg-card shadow-2xl rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
@@ -280,64 +269,49 @@ const Roulette = ({
               {/* Fortune wheel container */}
               <div className="relative w-full mx-auto aspect-square max-w-96 mb-6"> 
                 {/* Wheel indicator (pointer) */}
-                <div className="absolute top-1 left-1/2 transform -translate-x-1/2 -mt-6 z-20 drop-shadow-xl">
-                  <div className="w-12 h-12 overflow-hidden">
-                    <div className="w-0 h-0 border-l-[24px] border-r-[24px] border-t-[36px] border-l-transparent border-r-transparent border-t-amber-500 filter drop-shadow-lg mx-auto"></div>
-                  </div>
-                </div>
-                
-                {/* Center wheel cap */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-gray-800 to-gray-600 rounded-full z-10 flex items-center justify-center shadow-inner">
-                  <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full border-2 border-gray-500"></div>
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-1 z-20">
+                  <div className="w-6 h-10 bg-black rounded-b-full"></div>
                 </div>
                 
                 {/* The wheel */}
                 <div 
                   ref={wheelRef}
-                  className="absolute inset-0 rounded-full overflow-hidden border-8 border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3),inset_0_0_15px_rgba(0,0,0,0.3)] transition-all"
+                  className="absolute inset-0 rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.2)] transition-all"
                   style={{ 
                     transform: `rotate(${rotation}deg)`,
                     transition: `transform ${spinDuration}s cubic-bezier(0.2, 0.8, 0.3, 1)`,
                     backfaceVisibility: 'hidden',
                   }}
                 >
+                  {/* Dark blue ring around the wheel */}
+                  <div className="absolute inset-0 rounded-full border-[12px] border-[#052248] z-10"></div>
+                  
+                  {/* Segments of the wheel */}
                   {items.length > 0 ? (
                     items.map((item, index) => {
                       const segmentAngle = 360 / items.length;
                       const rotation = index * segmentAngle;
-                      const isWinningSegment = winner === item && highlightWinner;
-                      const { bg, text } = getItemColor(index, isWinningSegment);
-                      const segmentScale = isWinningSegment ? 'scale-[1.03]' : 'scale-100';
-                      const segmentZIndex = isWinningSegment ? 'z-[5]' : 'z-[1]';
+                      const { bg, text } = getItemColor(index);
                       
                       return (
                         <div
                           key={index}
-                          className={`absolute top-0 left-0 w-full h-full origin-center transition-transform ${segmentZIndex} ${segmentScale}`}
+                          className="absolute top-0 left-0 w-full h-full origin-center"
                           style={{
                             transform: `rotate(${rotation}deg)`,
                             clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((segmentAngle * Math.PI) / 180)}% ${50 - 50 * Math.sin((segmentAngle * Math.PI) / 180)}%, 50% 50%)`,
-                            transition: 'all 0.3s ease-out',
                           }}
                         >
                           <div 
-                            className={`w-full h-full flex items-start justify-center pt-6 md:pt-12 ${bg} ${text} ${colorMultiplier}`}
+                            className={`w-full h-full flex items-start justify-center pt-10 ${bg} ${text}`}
                             style={{
                               transform: `rotate(${segmentAngle / 2}deg)`,
                               transformOrigin: 'center',
-                              transition: 'opacity 0.3s ease-out',
-                              boxShadow: isWinningSegment ? 'inset 0 0 20px rgba(255,255,255,0.6)' : 'none',
                             }}
                           >
                             <span 
-                              className={`max-w-[80%] text-center font-bold ${
-                                isWinningSegment ? 'text-xl md:text-2xl' : 'text-base md:text-lg'
-                              }`}
-                              style={{ 
-                                transform: 'rotate(180deg)',
-                                textShadow: '0px 2px 4px rgba(0,0,0,0.3)',
-                                transition: 'all 0.3s ease-out',
-                              }}
+                              className="max-w-[80%] text-center font-medium text-sm"
+                              style={{ transform: 'rotate(180deg)' }}
                             >
                               {item}
                             </span>
@@ -346,22 +320,23 @@ const Roulette = ({
                       );
                     })
                   ) : (
-                    <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                       <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Adicione itens</p>
                     </div>
                   )}
-                </div>
-                
-                {/* Wheel outer edge with gold pegs */}
-                <div className="absolute inset-0 rounded-full pointer-events-none z-[2]">
-                  {[...Array(24)].map((_, i) => (
+                  
+                  {/* Center hub of the wheel */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full z-20 flex items-center justify-center shadow-inner border-2 border-gray-200"></div>
+                  
+                  {/* Light dots around the wheel */}
+                  {[...Array(12)].map((_, i) => (
                     <div 
                       key={i} 
-                      className="absolute w-3 h-3 bg-amber-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                      className={`absolute w-3 h-3 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-20 ${i % 2 === 0 ? 'bg-yellow-200' : 'bg-white'}`}
                       style={{
-                        left: `${50 + 49 * Math.cos((i * 15 * Math.PI) / 180)}%`,
-                        top: `${50 + 49 * Math.sin((i * 15 * Math.PI) / 180)}%`,
-                        boxShadow: '0 0 5px rgba(0,0,0,0.3)'
+                        left: `${50 + 47 * Math.cos((i * 30 * Math.PI) / 180)}%`,
+                        top: `${50 + 47 * Math.sin((i * 30 * Math.PI) / 180)}%`,
+                        boxShadow: i % 2 === 0 ? '0 0 8px 2px rgba(255, 255, 0, 0.6)' : '0 0 8px 2px rgba(255, 255, 255, 0.8)'
                       }}
                     ></div>
                   ))}
