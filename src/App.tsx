@@ -10,6 +10,7 @@ import NumberDrawPage from "./pages/NumberDrawPage";
 import NameDrawPage from "./pages/NameDrawPage";
 import TeamDrawPage from "./pages/TeamDrawPage";
 import RoulettePage from "./pages/RoulettePage";
+import InstagramDrawPage from "./pages/InstagramDrawPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/sorteio/nomes" element={<NameDrawPage />} />
             <Route path="/sorteio/equipes" element={<TeamDrawPage />} />
             <Route path="/sorteio/roleta" element={<RoulettePage />} />
+            <Route path="/sorteio/instagram" element={<InstagramDrawPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

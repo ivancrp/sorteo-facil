@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Hash, List, Users, Circle } from 'lucide-react';
+import { Hash, List, Users, Circle, Instagram } from 'lucide-react';
 import DrawCard from '@/components/DrawCard';
 import Header from '@/components/Header';
 
@@ -45,6 +45,13 @@ const Index = () => {
       href: '/sorteio/roleta',
       icon: Circle,
       color: 'warning'
+    },
+    {
+      title: 'Sorteio de Comentários do Instagram',
+      description: 'Sorteie vencedores a partir de comentários do Instagram.',
+      href: '/sorteio/instagram',
+      icon: Instagram,
+      color: 'destructive'
     }
   ];
   
