@@ -1,7 +1,7 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from "sonner";
-import { Circle, Play, Settings, Upload, RefreshCw, X } from 'lucide-react';
+import { Upload, X, Play, Settings, RefreshCw } from 'lucide-react';
 import ResultModal from './ResultModal';
 
 interface RouletteProps {
@@ -28,6 +28,7 @@ const Roulette = ({
   const [showResult, setShowResult] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [spinDuration, setSpinDuration] = useState(5);
+  const [highlightWinner, setHighlightWinner] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -70,14 +71,21 @@ const Roulette = ({
     }
   };
   
-  const getItemColor = (index: number) => {
-    // Alternating colors: purple and blue
-    return index % 2 === 0 
-      ? 'bg-[#8B5CF6]'  // Purple
-      : 'bg-[#3B82F6]'; // Blue
+  const getItemColor = (index: number, isWinningIndex: boolean = false) => {
+    // Alternating colors
+    const baseColors = [
+      { bg: 'bg-red-500', text: 'text-white' },
+      { bg: 'bg-amber-400', text: 'text-gray-900' },
+      { bg: 'bg-emerald-500', text: 'text-white' },
+      { bg: 'bg-blue-500', text: 'text-white' },
+      { bg: 'bg-purple-500', text: 'text-white' },
+      { bg: 'bg-pink-500', text: 'text-white' },
+    ];
+    
+    const colorIndex = index % baseColors.length;
+    return baseColors[colorIndex];
   };
 
-  // Update spinWheel to call onWinner
   const spinWheel = () => {
     if (items.length < 2) {
       toast.error("Adicione pelo menos 2 itens para girar a roleta");
@@ -86,8 +94,10 @@ const Roulette = ({
     
     setIsSpinning(true);
     setWinner(null);
+    setHighlightWinner(false);
     
-    const minRotation = 5 * 360;
+    // More randomness: between 5 and 10 full rotations + random offset
+    const minRotation = (Math.floor(Math.random() * 5) + 5) * 360;
     const randomOffset = Math.floor(Math.random() * 360);
     const newRotation = rotation + minRotation + randomOffset;
     
@@ -98,9 +108,17 @@ const Roulette = ({
       const winnerName = items[winnerIndex];
       
       setWinner(winnerName);
-      onWinner(winnerName); // Call the onWinner callback
+      onWinner(winnerName);
       setIsSpinning(false);
-      setShowResult(true);
+      
+      // Small delay before showing result to let the wheel finish animating
+      setTimeout(() => {
+        setHighlightWinner(true);
+        // Then small delay before showing full result modal
+        setTimeout(() => {
+          setShowResult(true);
+        }, 1000);
+      }, 500);
       
       toast.success("A roleta parou!");
     }, spinDuration * 1000);
@@ -117,8 +135,6 @@ const Roulette = ({
     
     // Determine which sector the rotation points to
     // The wheel rotates clockwise, so we need to adjust the logic
-    // 0 degrees is at the top, and it increases clockwise
-    // We subtract from items.length to account for the clockwise nature
     let winnerIndex = Math.floor(normalizedRotation / sectorSize);
     winnerIndex = (items.length - winnerIndex) % items.length;
     
@@ -128,14 +144,18 @@ const Roulette = ({
   const resetWheel = () => {
     setRotation(0);
     setWinner(null);
+    setHighlightWinner(false);
   };
+
+  // Mute colors when spinning
+  const colorMultiplier = isSpinning ? 'opacity-80' : 'opacity-100';
   
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-white dark:bg-card shadow-xl rounded-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+      <div className="bg-white dark:bg-card shadow-2xl rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+        <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 p-6 text-white">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Roleta de Sorteio</h2>
+            <h2 className="text-2xl font-bold drop-shadow-md">Roleta de Sorteio</h2>
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="p-2 rounded-lg hover:bg-white/20 transition-colors"
@@ -186,8 +206,8 @@ const Roulette = ({
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-          <div className="bg-white dark:bg-card rounded-xl shadow-md p-5 border border-gray-100 dark:border-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+          <div className="bg-white dark:bg-card rounded-xl shadow-md p-5 border border-gray-100 dark:border-gray-800 md:col-span-1">
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Adicionar Item</label>
               <div className="flex">
@@ -203,7 +223,7 @@ const Roulette = ({
                 <button
                   onClick={handleAddItem}
                   disabled={isSpinning}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-r-lg disabled:opacity-50 font-medium"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-r-lg disabled:opacity-50 font-medium"
                 >
                   Adicionar
                 </button>
@@ -227,21 +247,24 @@ const Roulette = ({
               <div className="border rounded-lg p-2 h-60 overflow-y-auto">
                 {items.length > 0 ? (
                   <ul className="space-y-1">
-                    {items.map((item, index) => (
-                      <li key={index} className="flex items-center justify-between px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full mr-2 ${getItemColor(index)}`}></div>
-                          <span>{item}</span>
-                        </div>
-                        <button
-                          onClick={() => onRemoveItem(index)}
-                          disabled={isSpinning}
-                          className="text-destructive hover:text-destructive/80 disabled:opacity-50"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </li>
-                    ))}
+                    {items.map((item, index) => {
+                      const { bg, text } = getItemColor(index);
+                      return (
+                        <li key={index} className="flex items-center justify-between px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded">
+                          <div className="flex items-center">
+                            <div className={`w-3 h-3 rounded-full mr-2 ${bg}`}></div>
+                            <span>{item}</span>
+                          </div>
+                          <button
+                            onClick={() => onRemoveItem(index)}
+                            disabled={isSpinning}
+                            className="text-destructive hover:text-destructive/80 disabled:opacity-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -252,88 +275,117 @@ const Roulette = ({
             </div>
           </div>
           
-          <div className="flex flex-col items-center justify-center bg-white dark:bg-card rounded-xl shadow-md p-5 border border-gray-100 dark:border-gray-800">
-            <div className="relative w-80 h-80 mb-4"> 
-              {/* Wheel indicator (pointer) */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-5 z-10">
-                <div className="w-10 h-10 bg-white dark:bg-background rounded-full border-4 border-primary shadow-lg flex items-center justify-center">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+          <div className="flex flex-col items-center justify-center md:col-span-2">
+            <div className="relative bg-white dark:bg-card rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-800 w-full">
+              {/* Fortune wheel container */}
+              <div className="relative w-full mx-auto aspect-square max-w-96 mb-6"> 
+                {/* Wheel indicator (pointer) */}
+                <div className="absolute top-1 left-1/2 transform -translate-x-1/2 -mt-6 z-20 drop-shadow-xl">
+                  <div className="w-12 h-12 overflow-hidden">
+                    <div className="w-0 h-0 border-l-[24px] border-r-[24px] border-t-[36px] border-l-transparent border-r-transparent border-t-amber-500 filter drop-shadow-lg mx-auto"></div>
+                  </div>
+                </div>
+                
+                {/* Center wheel cap */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-gray-800 to-gray-600 rounded-full z-10 flex items-center justify-center shadow-inner">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full border-2 border-gray-500"></div>
+                </div>
+                
+                {/* The wheel */}
+                <div 
+                  ref={wheelRef}
+                  className="absolute inset-0 rounded-full overflow-hidden border-8 border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3),inset_0_0_15px_rgba(0,0,0,0.3)] transition-all"
+                  style={{ 
+                    transform: `rotate(${rotation}deg)`,
+                    transition: `transform ${spinDuration}s cubic-bezier(0.2, 0.8, 0.3, 1)`,
+                    backfaceVisibility: 'hidden',
+                  }}
+                >
+                  {items.length > 0 ? (
+                    items.map((item, index) => {
+                      const segmentAngle = 360 / items.length;
+                      const rotation = index * segmentAngle;
+                      const isWinningSegment = winner === item && highlightWinner;
+                      const { bg, text } = getItemColor(index, isWinningSegment);
+                      const segmentScale = isWinningSegment ? 'scale-[1.03]' : 'scale-100';
+                      const segmentZIndex = isWinningSegment ? 'z-[5]' : 'z-[1]';
+                      
+                      return (
+                        <div
+                          key={index}
+                          className={`absolute top-0 left-0 w-full h-full origin-center transition-transform ${segmentZIndex} ${segmentScale}`}
+                          style={{
+                            transform: `rotate(${rotation}deg)`,
+                            clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((segmentAngle * Math.PI) / 180)}% ${50 - 50 * Math.sin((segmentAngle * Math.PI) / 180)}%, 50% 50%)`,
+                            transition: 'all 0.3s ease-out',
+                          }}
+                        >
+                          <div 
+                            className={`w-full h-full flex items-start justify-center pt-6 md:pt-12 ${bg} ${text} ${colorMultiplier}`}
+                            style={{
+                              transform: `rotate(${segmentAngle / 2}deg)`,
+                              transformOrigin: 'center',
+                              transition: 'opacity 0.3s ease-out',
+                              boxShadow: isWinningSegment ? 'inset 0 0 20px rgba(255,255,255,0.6)' : 'none',
+                            }}
+                          >
+                            <span 
+                              className={`max-w-[80%] text-center font-bold ${
+                                isWinningSegment ? 'text-xl md:text-2xl' : 'text-base md:text-lg'
+                              }`}
+                              style={{ 
+                                transform: 'rotate(180deg)',
+                                textShadow: '0px 2px 4px rgba(0,0,0,0.3)',
+                                transition: 'all 0.3s ease-out',
+                              }}
+                            >
+                              {item}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Adicione itens</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Wheel outer edge with gold pegs */}
+                <div className="absolute inset-0 rounded-full pointer-events-none z-[2]">
+                  {[...Array(24)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="absolute w-3 h-3 bg-amber-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                      style={{
+                        left: `${50 + 49 * Math.cos((i * 15 * Math.PI) / 180)}%`,
+                        top: `${50 + 49 * Math.sin((i * 15 * Math.PI) / 180)}%`,
+                        boxShadow: '0 0 5px rgba(0,0,0,0.3)'
+                      }}
+                    ></div>
+                  ))}
                 </div>
               </div>
               
-              {/* The wheel */}
-              <div 
-                ref={wheelRef}
-                className="roulette-wheel absolute inset-0 rounded-full overflow-hidden border-8 border-white dark:border-gray-700 shadow-2xl"
-                style={{ 
-                  transform: `rotate(${rotation}deg)`,
-                  transition: `transform ${spinDuration}s cubic-bezier(0.32, 0.94, 0.60, 1)`,
-                }}
+              <button
+                onClick={spinWheel}
+                disabled={isSpinning || items.length < 2}
+                className="mt-4 px-8 py-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 w-full max-w-64 mx-auto flex items-center justify-center relative z-20"
               >
-                {items.length > 0 ? (
-                  items.map((item, index) => {
-                    const segmentAngle = 360 / items.length;
-                    const rotation = index * segmentAngle;
-                    const colorClass = getItemColor(index);
-                    const colorValue = colorClass.includes('[') 
-                      ? colorClass.replace('bg-[', '').replace(']', '') 
-                      : `var(--${colorClass.replace('bg-', '')})`;
-                    
-                    return (
-                      <div
-                        key={index}
-                        className="absolute top-0 left-0 w-full h-full origin-center"
-                        style={{
-                          transform: `rotate(${rotation}deg)`,
-                          clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((segmentAngle * Math.PI) / 180)}% ${50 - 50 * Math.sin((segmentAngle * Math.PI) / 180)}%, 50% 50%)`,
-                        }}
-                      >
-                        <div 
-                          className="w-full h-full flex items-start justify-center pt-8 font-bold text-white text-base"
-                          style={{
-                            background: colorValue,
-                            transform: `rotate(${segmentAngle / 2}deg)`,
-                            transformOrigin: 'center',
-                          }}
-                        >
-                          <span 
-                            className="max-w-[70%] overflow-hidden whitespace-nowrap text-center"
-                            style={{ 
-                              transform: 'rotate(180deg)',
-                              textShadow: '0px 2px 3px rgba(0,0,0,0.5)'
-                            }}
-                          >
-                            {item}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })
+                {isSpinning ? (
+                  <>
+                    <RefreshCw className="w-6 h-6 mr-2 animate-spin" />
+                    Girando...
+                  </>
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 flex items-center justify-center">
-                    <Circle className="w-12 h-12 text-muted-foreground" />
-                  </div>
+                  <>
+                    <Play className="w-6 h-6 mr-2" fill="currentColor" />
+                    Girar Roleta
+                  </>
                 )}
-              </div>
+              </button>
             </div>
-            
-            <button
-              onClick={spinWheel}
-              disabled={isSpinning || items.length < 2}
-              className="mt-6 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 relative z-20"
-            >
-              {isSpinning ? (
-                <>
-                  <RefreshCw className="w-6 h-6 mr-2 animate-spin" />
-                  Girando...
-                </>
-              ) : (
-                <>
-                  <Play className="w-6 h-6 mr-2" fill="currentColor" />
-                  Girar Roleta
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
@@ -346,7 +398,7 @@ const Roulette = ({
         <div className="text-center py-8">
           <p className="text-sm text-muted-foreground mb-4">O item sorteado foi:</p>
           {winner && (
-            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 animate-scale-up">
+            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 animate-scale-up">
               {winner}
             </div>
           )}
@@ -364,8 +416,11 @@ const Roulette = ({
             </button>
             
             <button
-              onClick={() => spinWheel()}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-colors"
+              onClick={() => {
+                setShowResult(false);
+                setTimeout(() => spinWheel(), 300);
+              }}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 transition-colors"
             >
               <Play className="w-4 h-4 mr-2" fill="currentColor" />
               Girar Novamente
