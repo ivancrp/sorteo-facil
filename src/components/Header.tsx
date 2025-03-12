@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Hash, Users, List, Circle } from 'lucide-react';
+import { Home, Hash, Users, List, Circle, Instagram } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Header = () => {
@@ -23,6 +23,7 @@ const Header = () => {
     { name: 'Nomes', href: '/sorteio/nomes', icon: List },
     { name: 'Equipes', href: '/sorteio/equipes', icon: Users },
     { name: 'Roleta', href: '/sorteio/roleta', icon: Circle },
+    { name: 'Instagram', href: '/sorteio/instagram', icon: Instagram },
   ];
 
   return (
