@@ -1,12 +1,13 @@
 
 import { useState } from 'react';
-import { Instagram, Copy, Upload, Trash, Trophy } from 'lucide-react';
+import { Instagram, Copy, Upload, Trash, Trophy, Download } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
 import ResultModal from '@/components/ResultModal';
 import { exportToFile, getFormattedDate } from '@/lib/export-utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Comment {
   username: string;
@@ -17,6 +18,8 @@ const InstagramDraw = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [winners, setWinners] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState('');
+  const [postUrl, setPostUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [numWinners, setNumWinners] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [drawDate] = useState(new Date());
@@ -66,6 +69,66 @@ const InstagramDraw = () => {
       });
     }
   };
+
+  const fetchInstagramComments = async () => {
+    if (!postUrl.trim()) {
+      toast.error("Insira a URL do post do Instagram");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Extract post ID from URL
+      const urlRegex = /instagram\.com\/p\/([^\/]+)/;
+      const match = postUrl.match(urlRegex);
+      
+      if (!match) {
+        toast.error("URL do Instagram inválida", {
+          description: "Formato esperado: https://www.instagram.com/p/CODE"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // In a real implementation, this would call an API to fetch comments
+      // For demonstration, we'll simulate fetching with mock data
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock data - in a real app, this would come from the Instagram API
+      const mockComments: Comment[] = [
+        { username: "usuario_demo1", text: "Adorei esse sorteio!" },
+        { username: "maria_silva", text: "Quero ganhar! 😍" },
+        { username: "joao.gamer", text: "Participando! #sorteio" },
+        { username: "ana_beatriz", text: "Já estou seguindo" },
+        { username: "carlos_oficial", text: "Post incrível" },
+        { username: "lucia.123", text: "Quero muito ganhar" },
+        { username: "pedro.design", text: "Estou marcando três amigos" },
+        { username: "julia_castro", text: "Adoro seus conteúdos" },
+        { username: "rafael.tech", text: "Participando do sorteio!" },
+        { username: "camila_90", text: "Quero muito esse prêmio!" }
+      ];
+      
+      setComments(mockComments);
+      
+      // Generate the comment text for the textarea
+      const commentTextContent = mockComments
+        .map(comment => `${comment.username}: ${comment.text}`)
+        .join('\n');
+      
+      setCommentText(commentTextContent);
+      
+      toast.success("Comentários importados com sucesso", {
+        description: `${mockComments.length} comentários carregados`
+      });
+    } catch (error) {
+      toast.error("Erro ao importar comentários", {
+        description: "Não foi possível conectar ao Instagram. Tente novamente mais tarde."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const handleDraw = () => {
     if (comments.length === 0) {
@@ -112,6 +175,7 @@ const InstagramDraw = () => {
     if (confirm("Tem certeza que deseja limpar todos os comentários?")) {
       setComments([]);
       setCommentText('');
+      setPostUrl('');
       toast("Comentários limpos com sucesso");
     }
   };
@@ -163,36 +227,86 @@ const InstagramDraw = () => {
               Comentários do Instagram
             </h2>
             
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Cole os comentários abaixo (um por linha)</label>
-              <Textarea 
-                placeholder="username1: texto do comentário&#10;username2: outro comentário&#10;..."
-                className="min-h-[180px] font-mono text-sm"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
-            </div>
+            <Tabs defaultValue="manual" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="manual">Inserir Manualmente</TabsTrigger>
+                <TabsTrigger value="import">Importar do Instagram</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="manual">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">Cole os comentários abaixo (um por linha)</label>
+                  <Textarea 
+                    placeholder="username1: texto do comentário&#10;username2: outro comentário&#10;..."
+                    className="min-h-[180px] font-mono text-sm"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex flex-wrap gap-3 mt-4">
+                  <Button variant="default" onClick={handleParseComments} className="gap-2">
+                    <Copy className="h-4 w-4" />
+                    Processar Comentários
+                  </Button>
+                  
+                  <div className="relative">
+                    <Button variant="outline" className="gap-2">
+                      <Upload className="h-4 w-4" />
+                      Carregar Arquivo
+                    </Button>
+                    <input
+                      type="file"
+                      accept=".txt,.csv,.json"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      title="Carregar arquivo de comentários"
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="import">
+                <div className="flex flex-col gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">URL do Post no Instagram</label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://www.instagram.com/p/CODE"
+                        value={postUrl}
+                        onChange={(e) => setPostUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={fetchInstagramComments} 
+                        disabled={isLoading}
+                        className="gap-2 min-w-[140px]"
+                      >
+                        {isLoading ? "Importando..." : "Importar"}
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Cole a URL completa de um post público do Instagram
+                    </p>
+                  </div>
+                  
+                  {commentText && (
+                    <div className="flex flex-col gap-2 mt-2">
+                      <label className="text-sm font-medium">Comentários Importados</label>
+                      <Textarea 
+                        className="min-h-[150px] font-mono text-sm"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        readOnly
+                      />
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
             
-            <div className="flex flex-wrap gap-3">
-              <Button variant="default" onClick={handleParseComments} className="gap-2">
-                <Copy className="h-4 w-4" />
-                Processar Comentários
-              </Button>
-              
-              <div className="relative">
-                <Button variant="outline" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Carregar Arquivo
-                </Button>
-                <input
-                  type="file"
-                  accept=".txt,.csv,.json"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  title="Carregar arquivo de comentários"
-                />
-              </div>
-              
+            <div className="flex flex-wrap gap-3 mt-2">
               <Button variant="outline" className="gap-2" onClick={handleClearAll}>
                 <Trash className="h-4 w-4" />
                 Limpar Tudo
@@ -280,3 +394,4 @@ const InstagramDraw = () => {
 };
 
 export default InstagramDraw;
+
