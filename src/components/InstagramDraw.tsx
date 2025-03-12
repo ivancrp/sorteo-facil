@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Instagram, Copy, Upload, Trash, Trophy, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Instagram, Copy, Upload, Trash, Trophy, Download, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import ResultModal from '@/components/ResultModal';
 import { exportToFile, getFormattedDate } from '@/lib/export-utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Comment {
   username: string;
@@ -20,6 +21,8 @@ const InstagramDraw = () => {
   const [commentText, setCommentText] = useState('');
   const [postUrl, setPostUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
   const [numWinners, setNumWinners] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [drawDate] = useState(new Date());
@@ -77,6 +80,8 @@ const InstagramDraw = () => {
     }
 
     setIsLoading(true);
+    setIsImporting(true);
+    setImportProgress(0);
 
     try {
       // Extract post ID from URL
@@ -88,38 +93,44 @@ const InstagramDraw = () => {
           description: "Formato esperado: https://www.instagram.com/p/CODE"
         });
         setIsLoading(false);
+        setIsImporting(false);
         return;
       }
 
-      // In a real implementation, this would call an API to fetch comments
-      // For demonstration, we'll simulate fetching with mock data
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API pagination - in a real implementation, this would paginate through Instagram API responses
+      const totalPages = 3;
+      let allComments: Comment[] = [];
       
-      // Mock data - in a real app, this would come from the Instagram API
-      const mockComments: Comment[] = [
-        { username: "usuario_demo1", text: "Adorei esse sorteio!" },
-        { username: "maria_silva", text: "Quero ganhar! 😍" },
-        { username: "joao.gamer", text: "Participando! #sorteio" },
-        { username: "ana_beatriz", text: "Já estou seguindo" },
-        { username: "carlos_oficial", text: "Post incrível" },
-        { username: "lucia.123", text: "Quero muito ganhar" },
-        { username: "pedro.design", text: "Estou marcando três amigos" },
-        { username: "julia_castro", text: "Adoro seus conteúdos" },
-        { username: "rafael.tech", text: "Participando do sorteio!" },
-        { username: "camila_90", text: "Quero muito esse prêmio!" }
-      ];
+      for (let page = 1; page <= totalPages; page++) {
+        // Simulate network request
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Generate different mock data for each page
+        const pageComments = generateMockCommentsForPage(page, 15);
+        allComments = [...allComments, ...pageComments];
+        
+        // Update progress
+        setImportProgress(Math.floor((page / totalPages) * 100));
+        
+        // If this is the first page, show a toast to indicate progress
+        if (page === 1) {
+          toast.info("Importando comentários...", {
+            description: `Carregando página ${page} de ${totalPages}`
+          });
+        }
+      }
       
-      setComments(mockComments);
+      setComments(allComments);
       
       // Generate the comment text for the textarea
-      const commentTextContent = mockComments
+      const commentTextContent = allComments
         .map(comment => `${comment.username}: ${comment.text}`)
         .join('\n');
       
       setCommentText(commentTextContent);
       
       toast.success("Comentários importados com sucesso", {
-        description: `${mockComments.length} comentários carregados`
+        description: `${allComments.length} comentários carregados de ${totalPages} páginas`
       });
     } catch (error) {
       toast.error("Erro ao importar comentários", {
@@ -127,7 +138,48 @@ const InstagramDraw = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsImporting(false);
+      setImportProgress(100);
     }
+  };
+  
+  // Generate unique mock comments for each page
+  const generateMockCommentsForPage = (page: number, count: number): Comment[] => {
+    const baseUsernames = [
+      "maria", "joao", "ana", "carlos", "julia", "pedro", "camila", "lucas", 
+      "beatriz", "rafael", "amanda", "gustavo", "leticia", "leonardo", "isabela"
+    ];
+    
+    const commentPrefixes = [
+      "Adorei", "Participando", "Quero ganhar", "Muito legal", "Incrível", 
+      "Sensacional", "Maravilhoso", "Que show", "Espero ganhar", "Já estou seguindo"
+    ];
+    
+    const commentSuffixes = [
+      "! 😍", "! #sorteio", " esse prêmio!", " demais", "! ❤️", 
+      "! 🔥", "! 🎁", "! 👏", "! 🙏", " muito"
+    ];
+    
+    const emojis = ["😍", "❤️", "🔥", "👏", "🎁", "🙏", "✨", "🌟", "💯", "🤩"];
+    
+    return Array.from({ length: count }, (_, i) => {
+      const pageOffset = (page - 1) * 100; // Ensure unique comments across pages
+      const index = pageOffset + i;
+      
+      // Create more realistic usernames with numbers and variations
+      const username = `${baseUsernames[index % baseUsernames.length]}_${Math.floor(Math.random() * 1000)}${index % 3 === 0 ? '.oficial' : index % 2 === 0 ? '_real' : ''}`;
+      
+      // Create more varied comments
+      const prefix = commentPrefixes[index % commentPrefixes.length];
+      const suffix = commentSuffixes[index % commentSuffixes.length];
+      const extraEmoji = index % 3 === 0 ? ` ${emojis[index % emojis.length]}` : '';
+      const mention = index % 4 === 0 ? ` @${baseUsernames[(index + 1) % baseUsernames.length]}` : '';
+      
+      return {
+        username: username,
+        text: `${prefix}${suffix}${extraEmoji}${mention}`
+      };
+    });
   };
   
   const handleDraw = () => {
@@ -282,8 +334,17 @@ const InstagramDraw = () => {
                         disabled={isLoading}
                         className="gap-2 min-w-[140px]"
                       >
-                        {isLoading ? "Importando..." : "Importar"}
-                        <Download className="h-4 w-4" />
+                        {isLoading ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                            Importando...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4" />
+                            Importar
+                          </>
+                        )}
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -291,14 +352,38 @@ const InstagramDraw = () => {
                     </p>
                   </div>
                   
+                  {isImporting && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span>Importando comentários...</span>
+                        <span>{importProgress}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-muted overflow-hidden rounded-full">
+                        <div 
+                          className="h-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-300"
+                          style={{ width: `${importProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isLoading && !commentText && (
+                    <div className="space-y-3 mt-2">
+                      <Skeleton className="w-full h-6" />
+                      <Skeleton className="w-full h-24" />
+                    </div>
+                  )}
+                  
                   {commentText && (
                     <div className="flex flex-col gap-2 mt-2">
-                      <label className="text-sm font-medium">Comentários Importados</label>
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-medium">Comentários Importados</label>
+                        <span className="text-xs text-muted-foreground">{comments.length} comentários</span>
+                      </div>
                       <Textarea 
                         className="min-h-[150px] font-mono text-sm"
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        readOnly
                       />
                     </div>
                   )}
@@ -394,4 +479,3 @@ const InstagramDraw = () => {
 };
 
 export default InstagramDraw;
-
