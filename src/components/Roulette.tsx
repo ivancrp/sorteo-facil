@@ -75,7 +75,7 @@ const Roulette = ({
     // Just alternating orange and white colors as shown in the image
     return index % 2 === 0 ? 
       { bg: 'bg-[#F97316]', text: 'text-white' } : 
-      { bg: 'bg-Blue', text: 'text-gray-900' };
+      { bg: 'bg-white', text: 'text-gray-900' };
   };
 
   const spinWheel = () => {
