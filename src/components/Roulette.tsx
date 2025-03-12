@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { toast } from "sonner";
 import { Upload, X, Play, Settings, RefreshCw } from 'lucide-react';
@@ -73,12 +72,12 @@ const Roulette = ({
   
   const getItemColor = (index: number) => {
     const colors = [
+      { bg: 'bg-gradient-to-r from-amber-500 to-amber-600', text: 'text-white' },
       { bg: 'bg-gradient-to-r from-blue-500 to-blue-600', text: 'text-white' },
-      { bg: 'bg-gradient-to-r from-sky-500 to-sky-600', text: 'text-white' },
-      { bg: 'bg-gradient-to-r from-cyan-500 to-cyan-600', text: 'text-white' },
-      { bg: 'bg-gradient-to-r from-indigo-500 to-indigo-600', text: 'text-white' },
-      { bg: 'bg-gradient-to-r from-blue-400 to-blue-500', text: 'text-white' },
-      { bg: 'bg-gradient-to-r from-sky-400 to-sky-500', text: 'text-white' },
+      { bg: 'bg-gradient-to-r from-purple-500 to-purple-600', text: 'text-white' },
+      { bg: 'bg-gradient-to-r from-green-500 to-green-600', text: 'text-white' },
+      { bg: 'bg-gradient-to-r from-red-500 to-red-600', text: 'text-white' },
+      { bg: 'bg-gradient-to-r from-pink-500 to-pink-600', text: 'text-white' },
     ];
     return colors[index % colors.length];
   };
@@ -146,8 +145,8 @@ const Roulette = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-gradient-to-br from-blue-900/90 to-indigo-900/90 dark:from-blue-950 dark:to-indigo-950 shadow-2xl rounded-2xl overflow-hidden border border-blue-400/20">
-        <div className="bg-gradient-to-r from-blue-500 via-blue-400 to-sky-500 p-6 text-white">
+      <div className="bg-gradient-to-br from-purple-900/90 to-indigo-900/90 dark:from-purple-950 dark:to-indigo-950 shadow-2xl rounded-2xl overflow-hidden border border-purple-400/20">
+        <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 p-6 text-white">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold drop-shadow-md">Roleta da Sorte</h2>
             <button
@@ -161,7 +160,7 @@ const Roulette = ({
         
         {showSettings && (
           <div className="m-6 p-4 bg-white/5 backdrop-blur-lg rounded-lg animate-fade-in border border-white/10">
-            <h3 className="font-medium mb-3 text-blue-300">Configurações</h3>
+            <h3 className="font-medium mb-3 text-amber-300">Configurações</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -170,7 +169,7 @@ const Roulette = ({
                   type="number"
                   value={spinDuration}
                   onChange={(e) => setSpinDuration(Math.max(1, parseInt(e.target.value) || 5))}
-                  className="form-input w-full rounded-lg bg-white/10 border-white/20 text-white focus:ring-blue-500"
+                  className="form-input w-full rounded-lg bg-white/10 border-white/20 text-white focus:ring-amber-500"
                   min="1"
                   max="10"
                 />
@@ -217,7 +216,7 @@ const Roulette = ({
                 <button
                   onClick={handleAddItem}
                   disabled={isSpinning}
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-sky-500 text-white rounded-r-lg disabled:opacity-50 font-medium hover:from-blue-600 hover:to-sky-600"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-r-lg disabled:opacity-50 font-medium hover:from-amber-600 hover:to-yellow-600"
                 >
                   Adicionar
                 </button>
@@ -270,22 +269,22 @@ const Roulette = ({
           </div>
           
           <div className="flex flex-col items-center justify-center md:col-span-2">
-            <div className="relative bg-blue-900/20 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-blue-500/20 w-full">
+            <div className="relative bg-white/5 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-white/10 w-full">
               <div className="relative w-full mx-auto aspect-square max-w-96 mb-6"> 
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-1 z-20">
-                  <div className="w-6 h-10 bg-blue-500 rounded-b-full shadow-lg"></div>
+                  <div className="w-6 h-10 bg-amber-500 rounded-b-full shadow-lg"></div>
                 </div>
                 
                 <div 
                   ref={wheelRef}
-                  className="absolute inset-0 rounded-full overflow-hidden shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all"
+                  className="absolute inset-0 rounded-full overflow-hidden shadow-[0_0_30px_rgba(251,191,36,0.3)] transition-all"
                   style={{ 
                     transform: `rotate(${rotation}deg)`,
                     transition: `transform ${spinDuration}s cubic-bezier(0.2, 0.8, 0.3, 1)`,
                     backfaceVisibility: 'hidden',
                   }}
                 >
-                  <div className="absolute inset-0 rounded-full border-[12px] border-blue-600/80 z-10"></div>
+                  <div className="absolute inset-0 rounded-full border-[12px] border-amber-600/80 z-10"></div>
                   
                   {items.length > 0 ? (
                     items.map((item, index) => {
@@ -320,21 +319,21 @@ const Roulette = ({
                       );
                     })
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-700/50 to-blue-900/50 flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-700/50 to-gray-900/50 flex items-center justify-center">
                       <p className="text-white/70 text-lg font-medium">Adicione itens</p>
                     </div>
                   )}
                   
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full z-20 flex items-center justify-center shadow-xl border-2 border-blue-300"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full z-20 flex items-center justify-center shadow-xl border-2 border-amber-300"></div>
                   
                   {[...Array(12)].map((_, i) => (
                     <div 
                       key={i} 
-                      className={`absolute w-3 h-3 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-20 ${i % 2 === 0 ? 'bg-blue-300' : 'bg-white'}`}
+                      className={`absolute w-3 h-3 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-20 ${i % 2 === 0 ? 'bg-amber-300' : 'bg-white'}`}
                       style={{
                         left: `${50 + 47 * Math.cos((i * 30 * Math.PI) / 180)}%`,
                         top: `${50 + 47 * Math.sin((i * 30 * Math.PI) / 180)}%`,
-                        boxShadow: i % 2 === 0 ? '0 0 8px 2px rgba(59,130,246,0.6)' : '0 0 8px 2px rgba(255,255,255,0.8)'
+                        boxShadow: i % 2 === 0 ? '0 0 8px 2px rgba(251,191,36,0.6)' : '0 0 8px 2px rgba(255,255,255,0.8)'
                       }}
                     ></div>
                   ))}
@@ -344,7 +343,7 @@ const Roulette = ({
               <button
                 onClick={spinWheel}
                 disabled={isSpinning || items.length < 2}
-                className="mt-4 px-8 py-4 bg-gradient-to-r from-blue-500 via-sky-500 to-blue-500 hover:from-blue-600 hover:via-sky-600 hover:to-blue-600 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 w-full max-w-64 mx-auto flex items-center justify-center relative z-20"
+                className="mt-4 px-8 py-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 w-full max-w-64 mx-auto flex items-center justify-center relative z-20"
               >
                 {isSpinning ? (
                   <>
@@ -371,7 +370,7 @@ const Roulette = ({
         <div className="text-center py-8">
           <p className="text-sm text-muted-foreground mb-4">O item sorteado foi:</p>
           {winner && (
-            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-sky-400 to-blue-500 animate-scale-up">
+            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 animate-scale-up">
               {winner}
             </div>
           )}
@@ -393,7 +392,7 @@ const Roulette = ({
                 setShowResult(false);
                 setTimeout(() => spinWheel(), 300);
               }}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-sky-500 text-white hover:from-blue-600 hover:to-sky-600 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 transition-colors"
             >
               <Play className="w-4 h-4 mr-2" fill="currentColor" />
               Girar Novamente
