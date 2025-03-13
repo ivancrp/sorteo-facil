@@ -2,10 +2,11 @@
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import InstagramDraw from '@/components/InstagramDraw';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const InstagramDrawPage = () => {
   useEffect(() => {
@@ -35,6 +36,22 @@ const InstagramDrawPage = () => {
               <ArrowLeft className="w-4 h-4 mr-1" />
               Voltar para Início
             </Link>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-6"
+          >
+            <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30">
+              <AlertTriangle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <AlertTitle className="text-blue-700 dark:text-blue-400">Aviso</AlertTitle>
+              <AlertDescription className="text-blue-600/90 dark:text-blue-300/90">
+                Estamos trabalhando para implementar esta funcionalidade de integração com o Instagram. 
+                Por enquanto, você pode adicionar comentários manualmente.
+              </AlertDescription>
+            </Alert>
           </motion.div>
           
           <motion.div
