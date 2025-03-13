@@ -44,7 +44,7 @@ const Index = () => {
       description: 'Realize sorteios com uma roleta visual e personalizada.',
       href: '/sorteio/roleta',
       icon: Circle,
-      color: 'warning'
+      color: 'accent'
     },
     {
       title: 'Sorteio de Comentários do Instagram',
