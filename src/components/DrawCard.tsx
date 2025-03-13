@@ -17,6 +17,7 @@ const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: D
     secondary: "from-cyan-400 to-cyan-600",
     accent: "from-violet-500 to-purple-600",
     warning: "from-amber-400 to-orange-500",
+    destructive: "from-red-500 to-red-700",
   };
 
   const bgGradients = {
@@ -24,6 +25,7 @@ const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: D
     secondary: "from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-900/10",
     accent: "from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-900/10",
     warning: "from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-orange-900/10",
+    destructive: "from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/10",
   };
 
   return (
@@ -58,7 +60,8 @@ const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: D
               color === 'primary' && "text-blue-600 dark:text-blue-400",
               color === 'secondary' && "text-cyan-600 dark:text-cyan-400",
               color === 'accent' && "text-violet-600 dark:text-violet-400",
-              color === 'warning' && "text-amber-600 dark:text-amber-400"
+              color === 'warning' && "text-amber-600 dark:text-amber-400", 
+              color === 'destructive' && "text-red-600 dark:text-red-400"
             )}>
               Iniciar sorteio
               <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

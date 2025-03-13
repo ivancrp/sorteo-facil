@@ -51,7 +51,7 @@ const Index = () => {
       description: 'Sorteie vencedores a partir de comentários do Instagram.',
       href: '/sorteio/instagram',
       icon: Instagram,
-      color: 'destructive'
+      color: 'warning'
     }
   ];
   
