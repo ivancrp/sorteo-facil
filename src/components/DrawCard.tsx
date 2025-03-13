@@ -25,7 +25,7 @@ const DrawCard = ({ title, description, href, icon: Icon, color = "primary" }: D
     secondary: "from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-900/10",
     accent: "from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-900/10",
     warning: "from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-orange-900/10",
-    roleta: "from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-orange-900/10",
+    roleta: "from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-cyan-900/10",
   };
 
   return (
