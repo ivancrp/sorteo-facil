@@ -72,10 +72,10 @@ const Roulette = ({
   };
   
   const getItemColor = (index: number) => {
-    // Just alternating orange and white colors as shown in the image
+    // Use blue colors from the site's theme with alternating shades
     return index % 2 === 0 ? 
-      { bg: 'bg-[#F97316]', text: 'text-white' } : 
-      { bg: 'bg-white', text: 'text-gray-900' };
+      { bg: 'bg-blue-600', text: 'text-white' } : 
+      { bg: 'bg-blue-400', text: 'text-white' };
   };
 
   const spinWheel = () => {
@@ -284,7 +284,7 @@ const Roulette = ({
                   }}
                 >
                   {/* Dark blue ring around the wheel */}
-                  <div className="absolute inset-0 rounded-full border-[12px] border-[#052248] z-10"></div>
+                  <div className="absolute inset-0 rounded-full border-[12px] border-blue-900 z-10"></div>
                   
                   {/* Segments of the wheel */}
                   {items.length > 0 ? (
@@ -303,15 +303,18 @@ const Roulette = ({
                           }}
                         >
                           <div 
-                            className={`w-full h-full flex items-start justify-center pt-10 ${bg} ${text}`}
+                            className={`w-full h-full flex items-center justify-center pt-0 ${bg} ${text}`}
                             style={{
                               transform: `rotate(${segmentAngle / 2}deg)`,
                               transformOrigin: 'center',
                             }}
                           >
                             <span 
-                              className="max-w-[80%] text-center font-medium text-sm"
-                              style={{ transform: 'rotate(180deg)' }}
+                              className="max-w-[80%] text-center font-medium px-2 py-1 text-sm rounded transform rotate-180 truncate"
+                              style={{ 
+                                transform: 'rotate(180deg)',
+                                marginTop: `-${items.length > 10 ? '15' : '8'}%`,
+                              }}
                             >
                               {item}
                             </span>
@@ -320,13 +323,13 @@ const Roulette = ({
                       );
                     })
                   ) : (
-                    <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                      <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Adicione itens</p>
+                    <div className="w-full h-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                      <p className="text-blue-500 dark:text-blue-300 text-lg font-medium">Adicione nomes</p>
                     </div>
                   )}
                   
                   {/* Center hub of the wheel */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full z-20 flex items-center justify-center shadow-inner border-2 border-gray-200"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full z-20 flex items-center justify-center shadow-inner border-2 border-blue-200 dark:border-blue-700"></div>
                   
                   {/* Light dots around the wheel */}
                   {[...Array(12)].map((_, i) => (
@@ -346,7 +349,7 @@ const Roulette = ({
               <button
                 onClick={spinWheel}
                 disabled={isSpinning || items.length < 2}
-                className="mt-4 px-8 py-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 w-full max-w-64 mx-auto flex items-center justify-center relative z-20"
+                className="mt-4 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 w-full max-w-64 mx-auto flex items-center justify-center relative z-20"
               >
                 {isSpinning ? (
                   <>
@@ -373,7 +376,7 @@ const Roulette = ({
         <div className="text-center py-8">
           <p className="text-sm text-muted-foreground mb-4">O item sorteado foi:</p>
           {winner && (
-            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 animate-scale-up">
+            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 animate-scale-up">
               {winner}
             </div>
           )}
@@ -395,7 +398,7 @@ const Roulette = ({
                 setShowResult(false);
                 setTimeout(() => spinWheel(), 300);
               }}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 transition-colors"
             >
               <Play className="w-4 h-4 mr-2" fill="currentColor" />
               Girar Novamente
